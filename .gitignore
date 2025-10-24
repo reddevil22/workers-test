@@ -197,3 +197,34 @@ dist
 !.env.example
 .dev.vars*
 !.dev.vars.example
+
+### Build & package artifacts ###
+dist/
+dist-client/
+/.cache/
+/.parcel-cache/
+
+### Package managers ###
+bun.lock
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+### OS/editor files ###
+.vscode/
+.idea/
+Thumbs.db
+*.swp
+
+### Cloudflare / Wrangler ###
+.wrangler/
+wrangler.toml
+
+### Local environment ###
+.env.local
+.env.*.local
+
+### D1 / DB artifacts ###
+*.db
+*.sqlite
+

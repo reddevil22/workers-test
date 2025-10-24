@@ -1,0 +1,22 @@
+.container {
+  max-width: 960px;
+  margin: 24px auto;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.main {
+  margin-top: 20px;
+}
+nav a {
+  margin-right: 8px;
+  color: #0366d6;
+  text-decoration: none;
+}
+nav a:hover {
+  text-decoration: underline;
+}

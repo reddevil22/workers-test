@@ -11,5 +11,12 @@
   "assets": {
     "directory": "./dist/client",
     "not_found_handling": "single-page-application"
-  }
+  },
+  "d1_databases": [
+    {
+      "binding": "D1",
+      "database_name": "workers-test-db",
+      "database_id": "701764cc-c207-430f-a303-655dc2586848"
+    }
+  ]
 }
