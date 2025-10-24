@@ -1,66 +1,122 @@
-import { useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { usersUpdates$ } from "./services/realtime";
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import styles from "./UsersList.module.css";
-
-type User = {
-  id: string;
-  first_name?: string;
-  last_name?: string;
-  email?: string;
-  role?: string;
-};
-
-async function fetchUsers() {
-  const res = await fetch("/api/users");
-  if (!res.ok) throw new Error("Failed to fetch users");
-  const data = await res.json();
-  return data.users;
-}
+import { fetchUsers } from "./services/Api";
 
 export function UsersList() {
-  const queryClient = useQueryClient();
-  const {
-    data: users,
-    isLoading,
-    error,
-  } = useQuery<User[]>({ queryKey: ["users"], queryFn: fetchUsers });
+  const { data, error, isLoading } = useQuery({
+    queryKey: ["users"],
+    queryFn: fetchUsers,
+  });
 
-  useEffect(() => {
-    const sub = usersUpdates$.subscribe(() => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
-    });
-    return () => sub.unsubscribe();
-  }, [queryClient]);
+  if (isLoading) {
+    return (
+      <div className={styles.loading}>
+        <div className={styles.loadingSpinner}></div>
+        Loading users...
+      </div>
+    );
+  }
 
-  if (isLoading) return <div className={styles.loading}>Loading…</div>;
-  if (error) return <div className={styles.error}>{String(error)}</div>;
+  if (error) {
+    return (
+      <div className={styles.error}>
+        <div className={styles.errorIcon}>⚠️</div>
+        <div>
+          <strong>Error loading users</strong>
+          <br />
+          {(error as Error).message}
+        </div>
+      </div>
+    );
+  }
+
+  const users = data || [];
 
   return (
-    <div className={styles.list}>
-      <h2>Users</h2>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Role</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users?.map((u: User) => (
-            <tr key={u.id}>
-              <td>{u.id}</td>
-              <td>
-                {u.first_name} {u.last_name}
-              </td>
-              <td>{u.email}</td>
-              <td>{u.role}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className={styles.listContainer}>
+      <div className={styles.listHeader}>
+        <div>
+          <h2 className={styles.listTitle}>Users</h2>
+          <p className={styles.listDescription}>
+            Manage your application users and their permissions
+          </p>
+        </div>
+        <div className={styles.listActions}>
+          <Link to="/create" className={styles.addButton}>
+            <span>+</span>
+            Add User
+          </Link>
+        </div>
+      </div>
+
+      {users.length === 0 ? (
+        <div className={styles.emptyState}>
+          <div className={styles.emptyStateIcon}>👥</div>
+          <h3 className={styles.emptyStateTitle}>No users found</h3>
+          <p className={styles.emptyStateDescription}>
+            Get started by creating your first user account.
+          </p>
+          <Link to="/create" className={styles.addButton}>
+            <span>+</span>
+            Create Your First User
+          </Link>
+        </div>
+      ) : (
+        <div className={styles.tableContainer}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((user) => (
+                <tr key={user.id}>
+                  <td>
+                    <strong>
+                      {user.first_name} {user.last_name}
+                    </strong>
+                  </td>
+                  <td>
+                    <a
+                      href={`mailto:${user.email}`}
+                      className={styles.userEmail}
+                    >
+                      {user.email}
+                    </a>
+                  </td>
+                  <td>
+                    <span
+                      className={`${styles.userRole} ${
+                        styles[user.role as "admin" | "user"]
+                      }`}
+                    >
+                      {user.role}
+                    </span>
+                  </td>
+                  <td>
+                    <Link
+                      to={`/users/${user.id}/edit`}
+                      className={styles.addButton}
+                      style={{
+                        padding: "var(--space-2) var(--space-3)",
+                        fontSize: "var(--text-sm)",
+                        minHeight: "auto",
+                      }}
+                    >
+                      Edit
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

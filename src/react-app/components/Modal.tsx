@@ -17,15 +17,54 @@ export function Modal({
 }: ModalProps) {
   if (!open) return null;
 
+  const getIcon = () => {
+    switch (type) {
+      case "success":
+        return "✓";
+      case "error":
+        return "✕";
+      case "info":
+      default:
+        return "ℹ";
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      onClose();
+    }
+  };
+
   return (
-    <div className={styles.overlay} role="dialog" aria-modal="true">
-      <div className={`${styles.modal} ${styles[type]}`}>
+    <div
+      className={styles.overlay}
+      role="dialog"
+      aria-modal="true"
+      onClick={onClose}
+      onKeyDown={handleKeyDown}
+    >
+      <div
+        className={`${styles.modal} ${styles[type]}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <header className={styles.header}>
-          <h3>{title}</h3>
+          <div className={styles.headerContent}>
+            <div className={`${styles.icon} ${styles[type]}`}>{getIcon()}</div>
+            <h3 className={styles.title}>{title}</h3>
+          </div>
+          <button
+            className={styles.closeButton}
+            onClick={onClose}
+            aria-label="Close modal"
+          >
+            ×
+          </button>
         </header>
-        <div className={styles.body}>{message}</div>
+        <div className={styles.body}>
+          <p className={styles.message}>{message}</p>
+        </div>
         <footer className={styles.footer}>
-          <button className={styles.button} onClick={onClose}>
+          <button className={styles.button} onClick={onClose} autoFocus>
             OK
           </button>
         </footer>
