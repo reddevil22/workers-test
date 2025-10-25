@@ -135,10 +135,19 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
+  /* Semantic Colors */
+  --foreground: var(--neutral-900);
+  --background: var(--neutral-50);
+  --muted-foreground: var(--neutral-600);
+  --muted: var(--neutral-100);
+  --border: var(--neutral-200);
+  --input: var(--neutral-100);
+  --ring: var(--primary-500);
+
   /* Light Theme (Default) */
   color-scheme: light;
-  color: var(--neutral-900);
-  background-color: var(--neutral-50);
+  color: var(--foreground);
+  background-color: var(--background);
 }
 
 /* Base element styles */

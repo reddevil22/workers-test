@@ -1,12 +1,26 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import styles from "./UsersList.module.css";
-import { fetchUsers } from "./services/Api";
+import { fetchUsers, deleteUser } from "./services/Api";
+import { usersUpdates$ } from "./services/realtime";
 
 export function UsersList() {
+  const queryClient = useQueryClient();
   const { data, error, isLoading } = useQuery({
     queryKey: ["users"],
     queryFn: fetchUsers,
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteUser,
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      usersUpdates$.next();
+    },
+    onError(error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      alert(`Failed to delete user: ${msg}`);
+    },
   });
 
   if (isLoading) {
@@ -99,17 +113,38 @@ export function UsersList() {
                     </span>
                   </td>
                   <td>
-                    <Link
-                      to={`/users/${user.id}/edit`}
-                      className={styles.addButton}
-                      style={{
-                        padding: "var(--space-2) var(--space-3)",
-                        fontSize: "var(--text-sm)",
-                        minHeight: "auto",
-                      }}
-                    >
-                      Edit
-                    </Link>
+                    <div style={{ display: "flex", gap: "var(--space-2)" }}>
+                      <Link
+                        to={`/users/${user.id}/edit`}
+                        className={styles.addButton}
+                        style={{
+                          padding: "var(--space-2) var(--space-3)",
+                          fontSize: "var(--text-sm)",
+                          minHeight: "auto",
+                        }}
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        onClick={() => {
+                          if (
+                            window.confirm(
+                              `Are you sure you want to delete ${user.email}?`
+                            )
+                          ) {
+                            deleteMutation.mutate(user.id);
+                          }
+                        }}
+                        className={styles.deleteButton}
+                        style={{
+                          padding: "var(--space-2) var(--space-3)",
+                          fontSize: "var(--text-sm)",
+                          minHeight: "auto",
+                        }}
+                      >
+                        {deleteMutation.isPending ? "Deleting..." : "Delete"}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

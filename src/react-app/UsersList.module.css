@@ -222,28 +222,59 @@
   }
 
   .addButton {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .tableContainer {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    background-color: var(--primary-600);
+    color: white;
+    border: none;
     border-radius: var(--radius-lg);
-  }
-
-  .table {
+    padding: var(--space-2) var(--space-3);
     font-size: var(--text-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-decoration: none;
   }
 
-  .table th,
-  .table td {
-    padding: var(--space-3);
+  .addButton:hover {
+    background-color: var(--primary-700);
+    transform: translateY(-1px);
   }
-}
 
-@media (max-width: 480px) {
-  .listContainer {
-    padding: var(--space-3);
-    margin: 0 var(--space-3);
+  .addButton:active {
+    transform: translateY(0);
+  }
+
+  .deleteButton {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    background-color: var(--error-600);
+    color: white;
+    border: none;
+    border-radius: var(--radius-lg);
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-decoration: none;
+  }
+
+  .deleteButton:hover {
+    background-color: var(--error-700);
+    transform: translateY(-1px);
+  }
+
+  .deleteButton:active {
+    transform: translateY(0);
+  }
+
+  .deleteButton:disabled {
+    background-color: var(--error-400);
+    cursor: not-allowed;
+    transform: none;
   }
 
   .listTitle {

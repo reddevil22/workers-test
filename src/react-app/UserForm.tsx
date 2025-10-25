@@ -4,13 +4,14 @@ import { usersUpdates$ } from "./services/realtime";
 import styles from "./UserForm.module.css";
 import { Modal } from "./components";
 import { useParams, useNavigate } from "react-router-dom";
-import { fetchUser } from "./services/Api";
+import { fetchUser, createUser, updateUser } from "./services/Api";
 
 type UserPayload = {
   first_name?: string | null;
   last_name?: string | null;
   email: string | null;
   role?: string | null;
+  password?: string;
 };
 
 export function UserForm() {
@@ -33,6 +34,7 @@ export function UserForm() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("");
+  const [password, setPassword] = useState("");
 
   // Update form state when user data loads
   useEffect(() => {
@@ -53,15 +55,7 @@ export function UserForm() {
   );
 
   const create = useMutation({
-    mutationFn: async (payload: UserPayload) => {
-      const res = await fetch("/api/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error("Failed to create");
-      return res.json();
-    },
+    mutationFn: createUser,
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       usersUpdates$.next();
@@ -81,20 +75,8 @@ export function UserForm() {
   });
 
   const update = useMutation({
-    mutationFn: async (payload: UserPayload & { id: string }) => {
-      const res = await fetch(`/api/users/${payload.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          first_name: payload.first_name,
-          last_name: payload.last_name,
-          email: payload.email,
-          role: payload.role,
-        }),
-      });
-      if (!res.ok) throw new Error("Failed to update");
-      return res.json();
-    },
+    mutationFn: ({ id, ...userData }: UserPayload & { id: string }) =>
+      updateUser(id, userData),
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.invalidateQueries({ queryKey: ["user", params.id] });
@@ -116,17 +98,24 @@ export function UserForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const payload: UserPayload = {
-      first_name: firstName || null,
-      last_name: lastName || null,
-      email: email || null,
-      role: role || null,
-    };
 
     if (isEdit) {
-      update.mutate({ ...payload, id: params.id! });
+      const updatePayload: UserPayload = {
+        first_name: firstName || null,
+        last_name: lastName || null,
+        email: email || "",
+        role: role || null,
+      };
+      update.mutate({ ...updatePayload, id: params.id! });
     } else {
-      create.mutate(payload);
+      const createPayload = {
+        first_name: firstName || null,
+        last_name: lastName || null,
+        email: email || "",
+        role: role || null,
+        password: password || "",
+      };
+      create.mutate(createPayload);
     }
   };
 
@@ -213,6 +202,26 @@ export function UserForm() {
             We'll never share your email with anyone else.
           </p>
         </div>
+
+        {!isEdit && (
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>
+              Password
+              <span className={styles.required}>*</span>
+            </label>
+            <input
+              name="password"
+              type="password"
+              className={styles.formInput}
+              placeholder="Enter password"
+              required={!isEdit}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <p className={styles.formHelp}>
+              Password must be at least 6 characters long.
+            </p>
+          </div>
+        )}
 
         <div className={styles.formGroup}>
           <label className={styles.formLabel}>

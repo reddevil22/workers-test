@@ -228,3 +228,6 @@ wrangler.toml
 *.db
 *.sqlite
 
+*.md
+test-*.js
+*.cjs
